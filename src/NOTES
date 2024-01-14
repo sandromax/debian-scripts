@@ -1,0 +1,258 @@
+#!/bin/bash
+
+# Шлях до каталогу з аудіо
+AUDIO_DIR="/home/user12/audiostream"
+
+# Створення та запуск плейліста
+cvlc --loop --no-audio-title-show --intf dummy $(find "$AUDIO_DIR" -type f -name "*.mp3" -printf '%p ')
+
+#chmod +x /home/user12/play_audio_playlist.sh
+#/home/user12/play_audio_playlist.sh
+
+#nano /home/user12/play_playlist.sh
+#!/bin/bash
+
+# Шлях до каталогу з відео
+VIDEO_DIR="/home/user12/videostream"
+
+# Створення та запуск плейліста
+vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ')
+#chmod +x /home/user12/play_playlist.sh
+#/home/user12/play_playlist.sh
+
+#sudo apt-get update
+#sudo apt-get install wmctrl
+## або
+#sudo apt-get install xdotool
+
+#nano make_vlc_active.sh
+#!/bin/bash
+
+while true; do
+  # Знаходження ID вікна VLC
+  VLC_WINDOW_ID=$(wmctrl -l | grep VLC | awk '{print $1}')
+
+  # Якщо вікно знайдено, зробити його активним
+  if [ ! -z "$VLC_WINDOW_ID" ]; then
+    wmctrl -i -a "$VLC_WINDOW_ID"
+  fi
+
+  # Чекати 60 секунд перед наступною ітерацією
+  sleep 60
+done
+
+#for xdotool
+#!/bin/bash
+
+while true; do
+  # Знаходження ID вікна VLC та активація його
+  VLC_WINDOW_ID=$(xdotool search --name VLC)
+
+  # Якщо вікно знайдено, зробити його активним
+  if [ ! -z "$VLC_WINDOW_ID" ]; then
+    xdotool windowactivate "$VLC_WINDOW_ID"
+  fi
+
+  # Чекати 60 секунд перед наступною ітерацією
+  sleep 60
+done
+#chmod +x make_vlc_active.sh
+#./make_vlc_active.sh
+
+#AudioStreeam folder link
+https://www.dropbox.com/scl/fo/hsubj48qdx5p3p13x5tm4/h?rlkey=0rqp2xz1k30t4w8ebnjjolr25&dl=0
+
+#VideoStream folder link
+https://www.dropbox.com/scl/fo/vilpo3k78swrrhymsdky5/h?rlkey=reineuvd9yygjt8pn61q8gjx2&dl=0
+
+#Pharma folder link
+https://www.dropbox.com/scl/fo/2d9qjg9hd6vo2ndjl7zyr/h?rlkey=hy0z98t3wn5cetvs443m30v5k&dl=0
+
+
+nano /home/admin30/scripts/startup_script.sh
+#!/bin/bash
+
+# Шлях до лог-файлу
+LOG_DIR="/home/admin30/Dropbox/Pharma/Logs"
+LOG_FILE="$LOG_DIR/$(date +%F).log"
+
+# Функція для додавання запису у лог-файл
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+}
+
+# Створення каталогу для лог-файлів, якщо він не існує
+mkdir -p "$LOG_DIR"
+
+# Запис про старт системи
+log "System start."
+
+# Запуск Dropbox
+dropbox start
+log "Dropbox started."
+
+# Запуск скриптів
+/home/admin30/scripts/launch_video.sh &
+log "Video playback script started."
+
+/home/admin30/scripts/brightness_control.sh &
+log "Brightness control script started."
+
+/home/admin30/scripts/launch_audio.sh &
+log "Audio playback script started."
+
+/home/admin30/scripts/make_vlc_active.sh &
+log "VLC activation script started."
+
+/home/admin30/scripts/update_media.sh &
+log "Media update script started."
+
+chmod +x /home/admin30/scripts/startup_script.sh
+
+crontab -e
+@reboot /home/admin30/scripts/startup_script.sh
+
+
+nano /home/user/scripts/check_and_update_video.sh
+
+#!/bin/bash
+
+VIDEO_DIR="/home/user/Dropbox/VideoStream"
+LAST_CHECK_FILE="/home/user/scripts/.last_video_check"
+
+# Функція для отримання часу останнього модифікування каталогу
+get_last_mod_time() {
+    stat -c "%Y" "$VIDEO_DIR"
+}
+
+# Зчитування часу останнього перевіреного оновлення
+last_mod_time=$(get_last_mod_time)
+if [ -f "$LAST_CHECK_FILE" ]; then
+    last_check_time=$(<"$LAST_CHECK_FILE")
+else
+    last_check_time=0
+fi
+
+# Порівняння часу останнього модифікування та часу останньої перевірки
+if [ "$last_mod_time" -ne "$last_check_time" ]; then
+    # Якщо файли були оновлені, зупинити поточний скрипт відтворення
+    pkill -f launch_video.sh
+
+    # Запуск скрипта відтворення з новими файлами
+    /home/user/scripts/launch_video.sh &
+
+    # Збереження нового часу останнього модифікування
+    echo "$last_mod_time" > "$LAST_CHECK_FILE"
+fi
+
+chmod +x /home/user/scripts/check_and_update_video.sh
+crontab -e
+*/5 * * * * /home/user/scripts/check_and_update_video.sh
+
+
+log_video_playback.sh
+#!/bin/bash
+
+# Шлях до каталогу з відеофайлами
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Шлях до лог-файлу
+LOG_FILE="/home/admin30/logs/video_playback.log"
+
+# Отримання поточної дати та часу
+current_date=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Запис у лог-файл про початок відтворення
+echo "Playback started at $current_date" >> "$LOG_FILE"
+
+# Запис у лог-файл списку mp4 файлів
+echo "List of mp4 files in $VIDEO_DIR:" >> "$LOG_FILE"
+find "$VIDEO_DIR" -type f -name "*.mp4" >> "$LOG_FILE"
+
+# Закінчення скрипта
+echo "Logging completed at $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"
+
+chmod +x /home/admin30/scripts/log_video_playback.sh
+/home/admin30/scripts/log_video_playback.sh
+
+launch_audio.sh
+sudo apt-get install mpg123
+#!/bin/bash
+
+AUDIO_DIR="/home/admin30/Dropbox/Pharma/AudioStream"
+
+# Безкінечний цикл для відтворення
+while true; do
+    # Знаходимо всі mp3 файли та передаємо їх у mpg123
+    find "$AUDIO_DIR" -type f -name "*.mp3" -exec mpg123 '{}' +
+done
+
+#ПЕРЕВІРКА ВИКОРИСТАНН CPU VLC
+#!/bin/bash
+
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Функція для запуску VLC
+start_vlc() {
+    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+}
+
+# Функція для перевірки використання CPU VLC
+check_vlc_cpu_usage() {
+    VLC_PID=$(pgrep -x "vlc")
+    if [ -z "$VLC_PID" ]; then
+        echo "VLC is not running. Starting VLC."
+        start_vlc
+    else
+        CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
+        if [[ $CPU_USAGE == "0.0" ]]; then
+            echo "VLC CPU usage is 0. Restarting VLC."
+            pkill -x "vlc"
+            sleep 5
+            start_vlc
+        else
+            echo "VLC is running normally."
+        fi
+    fi
+}
+
+# Основний цикл скрипта
+while true; do
+    check_vlc_cpu_usage
+    sleep 60
+done
+
+
+#!/bin/bash
+
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Функція для запуску VLC
+start_vlc() {
+    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+}
+
+# Функція для перевірки використання CPU VLC
+check_vlc_cpu_usage() {
+    VLC_PID=$(pgrep -x "vlc")
+    if [ -z "$VLC_PID" ]; then
+        echo "VLC is not running. Starting VLC."
+        start_vlc
+    else
+        CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
+        if [[ $CPU_USAGE == "0.0" ]]; then
+            echo "VLC CPU usage is 0. Restarting VLC."
+            pkill -x "vlc"
+            sleep 5
+            start_vlc
+        else
+            echo "VLC is running normally."
+        fi
+    fi
+}
+
+# Основний цикл скрипта
+while true; do
+    check_vlc_cpu_usage
+    sleep 60
+done
