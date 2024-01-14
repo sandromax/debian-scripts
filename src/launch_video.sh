@@ -1,23 +1,35 @@
 #!/bin/bash
 
-VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
-LOG_DIR="/home/admin30/Dropbox/Pharma/Logs"
-LOG_FILE="$LOG_DIR/$(date +%F).log"
+#VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+#LOG_DIR="/home/admin30/Dropbox/Pharma/Logs"
+#LOG_FILE="$LOG_DIR/$(date +%F).log"
+#
+#log() {
+#    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+#}
+#
+#if pgrep -x "vlc" > /dev/null; then
+#    log "Relaunching video"
+#    pkill -x "vlc"
+#fi
+#
+#vlc --fullscreen --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ')
+#
+#log
+#echo "List of mp4 files in $VIDEO_DIR:" >> "$LOG_FILE"
+#find "$VIDEO_DIR" -type f -name "*.mp4" >> "$LOG_FILE"
 
-log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
-}
+#!/bin/bash
 
-if pgrep -x "vlc" > /dev/null; then
-    log "Relaunching video"
-    pkill -x "vlc"
-fi
+VIDEO_DIR="/home/admin30/Dropbox/VideoStream"
 
-vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ')
+while true; do
+    VIDEO_FILES=$(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ')
 
-log
-echo "List of mp4 files in $VIDEO_DIR:" >> "$LOG_FILE"
-find "$VIDEO_DIR" -type f -name "*.mp4" >> "$LOG_FILE"
+    vlc --fullscreen --no-audio --intf dummy --no-video-title-show --play-and-exit $VIDEO_FILES
+
+    sleep 5
+done
 
 
 

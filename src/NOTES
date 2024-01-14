@@ -256,3 +256,14 @@ while true; do
     check_vlc_cpu_usage
     sleep 60
 done
+
+
+sudo apt-get install feh
+
+#!/bin/bash
+
+# Шлях до вашого зображення
+IMAGE_PATH="/path/to/your/image.jpg"
+
+# Відкриття зображення на повний екран за допомогою feh
+feh -F "$IMAGE_PATH"
