@@ -267,3 +267,268 @@ IMAGE_PATH="/path/to/your/image.jpg"
 
 # Відкриття зображення на повний екран за допомогою feh
 feh -F "$IMAGE_PATH"
+
+
+#!/bin/bash
+
+# Шлях до вашого каталогу з відео
+VIDEO_DIR="/path/to/your/video/directory"
+
+# Отримання першого відеофайлу в каталозі
+VIDEO_FILE=$(find "$VIDEO_DIR" -type f -name "*.mp4" | head -n 1)
+
+# Перевірка, чи файл існує
+if [[ -f "$VIDEO_FILE" ]]; then
+    # Відтворення відео в VLC в режимі повного екрану
+    vlc --fullscreen "$VIDEO_FILE"
+else
+    echo "Відеофайл не знайдено."
+fi
+
+
+#Надайте скрипту права на виконання:
+#bash
+#Copy code
+#chmod +x play_videos.sh
+#Для автоматичного запуску цього скрипта після входу в систему,
+#вам потрібно додати його в автозапуск вашого дистрибутива Linux.
+#Це зазвичай робиться через налаштування диспетчера сеансів
+#або додаючи скрипт до каталогу .config/autostart
+#у вашому домашньому каталозі.
+#
+#Для відлагодження та тестування Bash скриптів можна використовувати різні підходи та інструменти.
+#Ось кілька способів та тестів, які ви можете написати,
+#щоб переконатися у правильній роботі ваших скриптів:
+#---------------------------------
+#1. Використання set -x для відслідковування виконання скрипта
+#Додайте set -x на початку кожного скрипта, щоб бачити,
+#які команди виконуються та з якими параметрами.
+
+
+#!/bin/bash
+
+VIDEO_DIR="/home/user12/videostream"
+
+# Створення плейлісту з усіх mp4 файлів у каталозі
+find "$VIDEO_DIR" -type f -name "*.mp4" -print0 | while IFS= read -r -d '' file; do
+    vlc --fullscreen --no-video-title-show --loop --play-and-exit "$file"
+done
+
+#!/bin/bash
+
+# Шлях до каталогу з відео
+VIDEO_DIR="/home/user12/videostream"
+
+# Створення та запуск плейліста
+vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ')
+
+#-----------------------------------
+#2. Знаходження та Зупинка Процесу
+#Якщо скрипт запущений у фоні або в іншому терміналі, вам потрібно спершу знайти його PID (ідентифікатор процесу), а потім зупинити його.
+#
+#Знаходження PID:
+#Використайте ps або pgrep для знаходження PID скрипта. Наприклад:
+#
+#bash
+#Copy code
+#ps aux | grep [n]ame_of_script.sh
+#або
+#
+#bash
+#Copy code
+#pgrep -f name_of_script.sh
+#Зупинка Процесу:
+#Використайте kill або killall для зупинки процесу. Наприклад:
+#
+#bash
+#Copy code
+#kill [PID]
+#де [PID] - це ідентифікатор процесу, який ви знайшли. Якщо скрипт не реагує, використайте kill -9 [PID] для примусової зупинки.
+#
+#3. Зупинка Всіх Екземплярів Скрипта
+#Якщо вам потрібно зупинити всі запущені екземпляри скрипта, ви можете використати killall:
+#
+#bash
+#Copy code
+#killall name_of_script.sh
+#Це зупинить усі процеси, які мають ім'я name_of_script.sh.
+#---------------------------------------------------------------
+
+#!/bin/bash
+
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Функція для запуску VLC
+run_vlc() {
+    # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
+    vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/* & VLC_PID=$!
+
+    # Зберігаємо PID у змінну
+    echo $VLC_PID > /tmp/vlc_pid.txt
+
+    # Чекаємо завершення процесу VLC
+    wait $VLC_PID
+}
+
+# Головний цикл
+while true; do
+    # Запускаємо VLC
+    run_vlc
+
+    # Якщо VLC завершив роботу, зупиняємо попередній процес
+    if [[ -f /tmp/vlc_pid.txt ]]; then
+        kill $(cat /tmp/vlc_pid.txt)
+        rm /tmp/vlc_pid.txt
+    fi
+done
+
+#!/bin/bash
+
+# Шлях до каталогу з відеофайлами
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+while true; do
+    # Перебираємо всі mp4 файли у каталозі
+    for video_file in "${VIDEO_DIR}"/*.mp4; do
+        # Перевіряємо, чи файл існує
+        if [[ -f "$video_file" ]]; then
+            # Запускаємо VLC для відтворення файлу
+            cvlc --fullscreen --no-video-title-show --quiet "$video_file"
+        fi
+    done
+done
+
+#------------------------------------16.01 00:39
+#Для модифікації скрипта таким чином,
+#щоб він враховував загальний час програвання плейліста
+#і запускав наступний процес програвання після цього часу,
+#ми можемо використовувати mediainfo для отримання тривалості кожного відеофайлу.
+#Додамо функцію для розрахунку загальної тривалості плейліста,
+#а потім використаємо це значення для визначення часу, коли слід запускати наступний процес.
+
+#!/bin/bash
+
+# Шлях до каталогу з відеофайлами
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Функція для обчислення загальної тривалості відеофайлів у плейлісті
+calculate_total_duration() {
+    local total_duration=0
+    for video_file in "${VIDEO_DIR}"/*.mp4; do
+        if [[ -f "$video_file" ]]; then
+            # Отримуємо тривалість файла у мілісекундах і додаємо до загальної тривалості
+            local duration=$(mediainfo --Inform="General;%Duration%" "$video_file")
+            total_duration=$((total_duration + duration))
+        fi
+    done
+    echo $total_duration
+}
+
+# Функція для запуску VLC
+run_vlc() {
+    # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
+    vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/*.mp4 & VLC_PID=$!
+
+    # Зберігаємо PID у змінну
+    echo $VLC_PID > /tmp/vlc_pid.txt
+}
+
+# Головний цикл
+while true; do
+    # Обчислюємо загальну тривалість плейліста
+    TOTAL_DURATION=$(calculate_total_duration)
+
+    # Запускаємо VLC
+    run_vlc
+
+    # Чекаємо на завершення програвання плейліста
+    sleep $((TOTAL_DURATION / 1000))
+
+    # Якщо VLC завершив роботу, зупиняємо попередній процес
+    if [[ -f /tmp/vlc_pid.txt ]]; then
+        kill $(cat /tmp/vlc_pid.txt)
+        rm /tmp/vlc_pid.txt
+    fi
+done
+
+
+
+
+#-----------------------------------
+#!/bin/bash
+
+# Шлях до каталогу з відеофайлами
+VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Функція для запуску VLC
+run_vlc() {
+    # Запускаємо VLC у повноекранному режимі з відтворенням у циклі
+    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+
+    # Зберігаємо PID у змінну
+    VLC_PID=$!
+    echo $VLC_PID > /tmp/vlc_pid.txt
+
+    # Чекаємо, поки wmctrl не знайде нове вікно VLC, та робимо його активним
+    while true; do
+        if wmctrl -lp | grep $VLC_PID; then
+            wmctrl -i -a $(wmctrl -lp | grep $VLC_PID | cut -d " " -f 1)
+            break
+        fi
+        sleep 1
+    done
+}
+
+# Головний цикл
+while true; do
+    # Запускаємо VLC
+    run_vlc
+
+    # Чекаємо на зміни у каталозі або на завершення поточного відтворення
+    inotifywait -e close_write,moved_to,create "${VIDEO_DIR}" || continue
+
+    # Якщо VLC ще працює, зупиняємо попередній процес
+    if [[ -f /tmp/vlc_pid.txt ]]; then
+        kill $(cat /tmp/vlc_pid.txt)
+        rm /tmp/vlc_pid.txt
+    fi
+
+    # Чекаємо трохи, щоб новий процес міг запуститися, перш ніж повторити цикл
+    sleep 2
+done
+``
+#-----------------------------
+
+
+#---------------------
+#!/bin/bash
+
+# Шлях до каталогу, який потрібно моніторити
+WATCH_DIR="/path/to/your/directory"
+
+# Безкінечний цикл для моніторингу каталогу
+while true; do
+    # Використання inotifywait для спостереження за видаленням файлів
+    inotifywait -e delete "$WATCH_DIR"
+
+    # Код, який виконується після виявлення видалення файлу
+    echo "Файл видалено з $WATCH_DIR"
+done
+
+---
+#!/bin/bash
+
+# Шлях до каталогу, який потрібно моніторити
+WATCH_DIR="/path/to/your/directory"
+
+# Безкінечний цикл для моніторингу каталогу
+while true; do
+    # Використання inotifywait для спостереження за створенням файлів
+    inotifywait -e create "$WATCH_DIR"
+
+    # Код, який виконується після виявлення створення файлу
+    echo "Файл додано до $WATCH_DIR"
+done
+
+
+
