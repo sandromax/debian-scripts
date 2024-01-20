@@ -60,14 +60,16 @@ done
 #./make_vlc_active.sh
 
 #AudioStreeam folder link
-https://www.dropbox.com/scl/fo/hsubj48qdx5p3p13x5tm4/h?rlkey=0rqp2xz1k30t4w8ebnjjolr25&dl=0
+https://www.dropbox.com/scl/fo/hsubj48qdx5p3p13x5tm4/h?rlkey=0rqp2xz1k30t4w8ebnjjolr25 &
+dl=0
 
 #VideoStream folder link
-https://www.dropbox.com/scl/fo/vilpo3k78swrrhymsdky5/h?rlkey=reineuvd9yygjt8pn61q8gjx2&dl=0
+https://www.dropbox.com/scl/fo/vilpo3k78swrrhymsdky5/h?rlkey=reineuvd9yygjt8pn61q8gjx2 &
+dl=0
 
 #Pharma folder link
-https://www.dropbox.com/scl/fo/2d9qjg9hd6vo2ndjl7zyr/h?rlkey=hy0z98t3wn5cetvs443m30v5k&dl=0
-
+https://www.dropbox.com/scl/fo/2d9qjg9hd6vo2ndjl7zyr/h?rlkey=hy0z98t3wn5cetvs443m30v5k &
+dl=0
 
 nano /home/admin30/scripts/startup_script.sh
 #!/bin/bash
@@ -78,7 +80,7 @@ LOG_FILE="$LOG_DIR/$(date +%F).log"
 
 # Функція для додавання запису у лог-файл
 log() {
-    echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+  echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >>"$LOG_FILE"
 }
 
 # Створення каталогу для лог-файлів, якщо він не існує
@@ -112,7 +114,6 @@ chmod +x /home/admin30/scripts/startup_script.sh
 crontab -e
 @reboot /home/admin30/scripts/startup_script.sh
 
-
 nano /home/user/scripts/check_and_update_video.sh
 
 #!/bin/bash
@@ -122,33 +123,32 @@ LAST_CHECK_FILE="/home/user/scripts/.last_video_check"
 
 # Функція для отримання часу останнього модифікування каталогу
 get_last_mod_time() {
-    stat -c "%Y" "$VIDEO_DIR"
+  stat -c "%Y" "$VIDEO_DIR"
 }
 
 # Зчитування часу останнього перевіреного оновлення
 last_mod_time=$(get_last_mod_time)
 if [ -f "$LAST_CHECK_FILE" ]; then
-    last_check_time=$(<"$LAST_CHECK_FILE")
+  last_check_time=$(<"$LAST_CHECK_FILE")
 else
-    last_check_time=0
+  last_check_time=0
 fi
 
 # Порівняння часу останнього модифікування та часу останньої перевірки
 if [ "$last_mod_time" -ne "$last_check_time" ]; then
-    # Якщо файли були оновлені, зупинити поточний скрипт відтворення
-    pkill -f launch_video.sh
+  # Якщо файли були оновлені, зупинити поточний скрипт відтворення
+  pkill -f launch_video.sh
 
-    # Запуск скрипта відтворення з новими файлами
-    /home/user/scripts/launch_video.sh &
+  # Запуск скрипта відтворення з новими файлами
+  /home/user/scripts/launch_video.sh &
 
-    # Збереження нового часу останнього модифікування
-    echo "$last_mod_time" > "$LAST_CHECK_FILE"
+  # Збереження нового часу останнього модифікування
+  echo "$last_mod_time" >"$LAST_CHECK_FILE"
 fi
 
 chmod +x /home/user/scripts/check_and_update_video.sh
 crontab -e
 */5 * * * * /home/user/scripts/check_and_update_video.sh
-
 
 log_video_playback.sh
 #!/bin/bash
@@ -163,14 +163,14 @@ LOG_FILE="/home/admin30/logs/video_playback.log"
 current_date=$(date '+%Y-%m-%d %H:%M:%S')
 
 # Запис у лог-файл про початок відтворення
-echo "Playback started at $current_date" >> "$LOG_FILE"
+echo "Playback started at $current_date" >>"$LOG_FILE"
 
 # Запис у лог-файл списку mp4 файлів
-echo "List of mp4 files in $VIDEO_DIR:" >> "$LOG_FILE"
-find "$VIDEO_DIR" -type f -name "*.mp4" >> "$LOG_FILE"
+echo "List of mp4 files in $VIDEO_DIR:" >>"$LOG_FILE"
+find "$VIDEO_DIR" -type f -name "*.mp4" >>"$LOG_FILE"
 
 # Закінчення скрипта
-echo "Logging completed at $(date '+%Y-%m-%d %H:%M:%S')" >> "$LOG_FILE"
+echo "Logging completed at $(date '+%Y-%m-%d %H:%M:%S')" >>"$LOG_FILE"
 
 chmod +x /home/admin30/scripts/log_video_playback.sh
 /home/admin30/scripts/log_video_playback.sh
@@ -183,8 +183,8 @@ AUDIO_DIR="/home/admin30/Dropbox/Pharma/AudioStream"
 
 # Безкінечний цикл для відтворення
 while true; do
-    # Знаходимо всі mp3 файли та передаємо їх у mpg123
-    find "$AUDIO_DIR" -type f -name "*.mp3" -exec mpg123 '{}' +
+  # Знаходимо всі mp3 файли та передаємо їх у mpg123
+  find "$AUDIO_DIR" -type f -name "*.mp3" -exec mpg123 '{}' +
 done
 
 #ПЕРЕВІРКА ВИКОРИСТАНН CPU VLC
@@ -194,34 +194,33 @@ VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 # Функція для запуску VLC
 start_vlc() {
-    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+  vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
 }
 
 # Функція для перевірки використання CPU VLC
 check_vlc_cpu_usage() {
-    VLC_PID=$(pgrep -x "vlc")
-    if [ -z "$VLC_PID" ]; then
-        echo "VLC is not running. Starting VLC."
-        start_vlc
+  VLC_PID=$(pgrep -x "vlc")
+  if [ -z "$VLC_PID" ]; then
+    echo "VLC is not running. Starting VLC."
+    start_vlc
+  else
+    CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
+    if [[ $CPU_USAGE == "0.0" ]]; then
+      echo "VLC CPU usage is 0. Restarting VLC."
+      pkill -x "vlc"
+      sleep 5
+      start_vlc
     else
-        CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
-        if [[ $CPU_USAGE == "0.0" ]]; then
-            echo "VLC CPU usage is 0. Restarting VLC."
-            pkill -x "vlc"
-            sleep 5
-            start_vlc
-        else
-            echo "VLC is running normally."
-        fi
+      echo "VLC is running normally."
     fi
+  fi
 }
 
 # Основний цикл скрипта
 while true; do
-    check_vlc_cpu_usage
-    sleep 60
+  check_vlc_cpu_usage
+  sleep 60
 done
-
 
 #!/bin/bash
 
@@ -229,34 +228,33 @@ VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 # Функція для запуску VLC
 start_vlc() {
-    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+  vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
 }
 
 # Функція для перевірки використання CPU VLC
 check_vlc_cpu_usage() {
-    VLC_PID=$(pgrep -x "vlc")
-    if [ -z "$VLC_PID" ]; then
-        echo "VLC is not running. Starting VLC."
-        start_vlc
+  VLC_PID=$(pgrep -x "vlc")
+  if [ -z "$VLC_PID" ]; then
+    echo "VLC is not running. Starting VLC."
+    start_vlc
+  else
+    CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
+    if [[ $CPU_USAGE == "0.0" ]]; then
+      echo "VLC CPU usage is 0. Restarting VLC."
+      pkill -x "vlc"
+      sleep 5
+      start_vlc
     else
-        CPU_USAGE=$(ps -p "$VLC_PID" -o %cpu | tail -n 1 | xargs)
-        if [[ $CPU_USAGE == "0.0" ]]; then
-            echo "VLC CPU usage is 0. Restarting VLC."
-            pkill -x "vlc"
-            sleep 5
-            start_vlc
-        else
-            echo "VLC is running normally."
-        fi
+      echo "VLC is running normally."
     fi
+  fi
 }
 
 # Основний цикл скрипта
 while true; do
-    check_vlc_cpu_usage
-    sleep 60
+  check_vlc_cpu_usage
+  sleep 60
 done
-
 
 sudo apt-get install feh
 
@@ -268,7 +266,6 @@ IMAGE_PATH="/path/to/your/image.jpg"
 # Відкриття зображення на повний екран за допомогою feh
 feh -F "$IMAGE_PATH"
 
-
 #!/bin/bash
 
 # Шлях до вашого каталогу з відео
@@ -279,12 +276,11 @@ VIDEO_FILE=$(find "$VIDEO_DIR" -type f -name "*.mp4" | head -n 1)
 
 # Перевірка, чи файл існує
 if [[ -f "$VIDEO_FILE" ]]; then
-    # Відтворення відео в VLC в режимі повного екрану
-    vlc --fullscreen "$VIDEO_FILE"
+  # Відтворення відео в VLC в режимі повного екрану
+  vlc --fullscreen "$VIDEO_FILE"
 else
-    echo "Відеофайл не знайдено."
+  echo "Відеофайл не знайдено."
 fi
-
 
 #Надайте скрипту права на виконання:
 #bash
@@ -304,14 +300,13 @@ fi
 #Додайте set -x на початку кожного скрипта, щоб бачити,
 #які команди виконуються та з якими параметрами.
 
-
 #!/bin/bash
 
 VIDEO_DIR="/home/user12/videostream"
 
 # Створення плейлісту з усіх mp4 файлів у каталозі
 find "$VIDEO_DIR" -type f -name "*.mp4" -print0 | while IFS= read -r -d '' file; do
-    vlc --fullscreen --no-video-title-show --loop --play-and-exit "$file"
+  vlc --fullscreen --no-video-title-show --loop --play-and-exit "$file"
 done
 
 #!/bin/bash
@@ -360,26 +355,27 @@ VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 # Функція для запуску VLC
 run_vlc() {
-    # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
-    vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/* & VLC_PID=$!
+  # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
+  vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/* &
+  VLC_PID=$!
 
-    # Зберігаємо PID у змінну
-    echo $VLC_PID > /tmp/vlc_pid.txt
+  # Зберігаємо PID у змінну
+  echo $VLC_PID >/tmp/vlc_pid.txt
 
-    # Чекаємо завершення процесу VLC
-    wait $VLC_PID
+  # Чекаємо завершення процесу VLC
+  wait $VLC_PID
 }
 
 # Головний цикл
 while true; do
-    # Запускаємо VLC
-    run_vlc
+  # Запускаємо VLC
+  run_vlc
 
-    # Якщо VLC завершив роботу, зупиняємо попередній процес
-    if [[ -f /tmp/vlc_pid.txt ]]; then
-        kill $(cat /tmp/vlc_pid.txt)
-        rm /tmp/vlc_pid.txt
-    fi
+  # Якщо VLC завершив роботу, зупиняємо попередній процес
+  if [[ -f /tmp/vlc_pid.txt ]]; then
+    kill $(cat /tmp/vlc_pid.txt)
+    rm /tmp/vlc_pid.txt
+  fi
 done
 
 #!/bin/bash
@@ -388,14 +384,14 @@ done
 VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 while true; do
-    # Перебираємо всі mp4 файли у каталозі
-    for video_file in "${VIDEO_DIR}"/*.mp4; do
-        # Перевіряємо, чи файл існує
-        if [[ -f "$video_file" ]]; then
-            # Запускаємо VLC для відтворення файлу
-            cvlc --fullscreen --no-video-title-show --quiet "$video_file"
-        fi
-    done
+  # Перебираємо всі mp4 файли у каталозі
+  for video_file in "${VIDEO_DIR}"/*.mp4; do
+    # Перевіряємо, чи файл існує
+    if [[ -f "$video_file" ]]; then
+      # Запускаємо VLC для відтворення файлу
+      cvlc --fullscreen --no-video-title-show --quiet "$video_file"
+    fi
+  done
 done
 
 #------------------------------------16.01 00:39
@@ -413,46 +409,44 @@ VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 # Функція для обчислення загальної тривалості відеофайлів у плейлісті
 calculate_total_duration() {
-    local total_duration=0
-    for video_file in "${VIDEO_DIR}"/*.mp4; do
-        if [[ -f "$video_file" ]]; then
-            # Отримуємо тривалість файла у мілісекундах і додаємо до загальної тривалості
-            local duration=$(mediainfo --Inform="General;%Duration%" "$video_file")
-            total_duration=$((total_duration + duration))
-        fi
-    done
-    echo $total_duration
+  local total_duration=0
+  for video_file in "${VIDEO_DIR}"/*.mp4; do
+    if [[ -f "$video_file" ]]; then
+      # Отримуємо тривалість файла у мілісекундах і додаємо до загальної тривалості
+      local duration=$(mediainfo --Inform="General;%Duration%" "$video_file")
+      total_duration=$((total_duration + duration))
+    fi
+  done
+  echo $total_duration
 }
 
 # Функція для запуску VLC
 run_vlc() {
-    # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
-    vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/*.mp4 & VLC_PID=$!
+  # Запускаємо VLC у повноекранному режимі без інтерфейсу та зберігаємо PID
+  vlc --fullscreen --no-video-title-show --quiet "${VIDEO_DIR}"/*.mp4 &
+  VLC_PID=$!
 
-    # Зберігаємо PID у змінну
-    echo $VLC_PID > /tmp/vlc_pid.txt
+  # Зберігаємо PID у змінну
+  echo $VLC_PID >/tmp/vlc_pid.txt
 }
 
 # Головний цикл
 while true; do
-    # Обчислюємо загальну тривалість плейліста
-    TOTAL_DURATION=$(calculate_total_duration)
+  # Обчислюємо загальну тривалість плейліста
+  TOTAL_DURATION=$(calculate_total_duration)
 
-    # Запускаємо VLC
-    run_vlc
+  # Запускаємо VLC
+  run_vlc
 
-    # Чекаємо на завершення програвання плейліста
-    sleep $((TOTAL_DURATION / 1000))
+  # Чекаємо на завершення програвання плейліста
+  sleep $((TOTAL_DURATION / 1000))
 
-    # Якщо VLC завершив роботу, зупиняємо попередній процес
-    if [[ -f /tmp/vlc_pid.txt ]]; then
-        kill $(cat /tmp/vlc_pid.txt)
-        rm /tmp/vlc_pid.txt
-    fi
+  # Якщо VLC завершив роботу, зупиняємо попередній процес
+  if [[ -f /tmp/vlc_pid.txt ]]; then
+    kill $(cat /tmp/vlc_pid.txt)
+    rm /tmp/vlc_pid.txt
+  fi
 done
-
-
-
 
 #-----------------------------------
 #!/bin/bash
@@ -462,43 +456,42 @@ VIDEO_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
 
 # Функція для запуску VLC
 run_vlc() {
-    # Запускаємо VLC у повноекранному режимі з відтворенням у циклі
-    vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
+  # Запускаємо VLC у повноекранному режимі з відтворенням у циклі
+  vlc --fullscreen --loop --no-video-title-show $(find "$VIDEO_DIR" -type f -name "*.mp4" -printf '%p ') &
 
-    # Зберігаємо PID у змінну
-    VLC_PID=$!
-    echo $VLC_PID > /tmp/vlc_pid.txt
+  # Зберігаємо PID у змінну
+  VLC_PID=$!
+  echo $VLC_PID >/tmp/vlc_pid.txt
 
-    # Чекаємо, поки wmctrl не знайде нове вікно VLC, та робимо його активним
-    while true; do
-        if wmctrl -lp | grep $VLC_PID; then
-            wmctrl -i -a $(wmctrl -lp | grep $VLC_PID | cut -d " " -f 1)
-            break
-        fi
-        sleep 1
-    done
+  # Чекаємо, поки wmctrl не знайде нове вікно VLC, та робимо його активним
+  while true; do
+    if wmctrl -lp | grep $VLC_PID; then
+      wmctrl -i -a $(wmctrl -lp | grep $VLC_PID | cut -d " " -f 1)
+      break
+    fi
+    sleep 1
+  done
 }
 
 # Головний цикл
 while true; do
-    # Запускаємо VLC
-    run_vlc
+  # Запускаємо VLC
+  run_vlc
 
-    # Чекаємо на зміни у каталозі або на завершення поточного відтворення
-    inotifywait -e close_write,moved_to,create "${VIDEO_DIR}" || continue
+  # Чекаємо на зміни у каталозі або на завершення поточного відтворення
+  inotifywait -e close_write,moved_to,create "${VIDEO_DIR}" || continue
 
-    # Якщо VLC ще працює, зупиняємо попередній процес
-    if [[ -f /tmp/vlc_pid.txt ]]; then
-        kill $(cat /tmp/vlc_pid.txt)
-        rm /tmp/vlc_pid.txt
-    fi
+  # Якщо VLC ще працює, зупиняємо попередній процес
+  if [[ -f /tmp/vlc_pid.txt ]]; then
+    kill $(cat /tmp/vlc_pid.txt)
+    rm /tmp/vlc_pid.txt
+  fi
 
-    # Чекаємо трохи, щоб новий процес міг запуститися, перш ніж повторити цикл
-    sleep 2
+  # Чекаємо трохи, щоб новий процес міг запуститися, перш ніж повторити цикл
+  sleep 2
 done
-``
+$()
 #-----------------------------
-
 
 #---------------------
 #!/bin/bash
@@ -508,11 +501,11 @@ WATCH_DIR="/path/to/your/directory"
 
 # Безкінечний цикл для моніторингу каталогу
 while true; do
-    # Використання inotifywait для спостереження за видаленням файлів
-    inotifywait -e delete "$WATCH_DIR"
+  # Використання inotifywait для спостереження за видаленням файлів
+  inotifywait -e delete "$WATCH_DIR"
 
-    # Код, який виконується після виявлення видалення файлу
-    echo "Файл видалено з $WATCH_DIR"
+  # Код, який виконується після виявлення видалення файлу
+  echo "Файл видалено з $WATCH_DIR"
 done
 
 ---
@@ -523,12 +516,156 @@ WATCH_DIR="/path/to/your/directory"
 
 # Безкінечний цикл для моніторингу каталогу
 while true; do
-    # Використання inotifywait для спостереження за створенням файлів
-    inotifywait -e create "$WATCH_DIR"
+  # Використання inotifywait для спостереження за створенням файлів
+  inotifywait -e create "$WATCH_DIR"
 
-    # Код, який виконується після виявлення створення файлу
-    echo "Файл додано до $WATCH_DIR"
+  # Код, який виконується після виявлення створення файлу
+  echo "Файл додано до $WATCH_DIR"
+done
+
+#---------------------------------20.01.24---Алгоритм з маніпуляціями плейліста
+#!/bin/bash
+
+DIRECTORY="/home/admin30/Dropbox/Pharma/VideoStream"
+SOCKET="/tmp/mpvsocket"
+
+# Функція для відправлення команди до MPV через IPC
+send_command_to_mpv() {
+  echo $1 | socat - "$SOCKET"
+}
+
+# Моніторинг каталогу
+inotifywait -m -e create -e delete "$DIRECTORY" --format '%f' | while read FILE; do
+  if [[ $FILE == *.mp4 ]]; then
+    # Додавання всіх mp4 файлів у каталогу до черги MPV
+    for f in "$DIRECTORY"/*.mp4; do
+      JSON_COMMAND='{"command": ["loadfile", "'$f'", "append"]}'
+      send_command_to_mpv "$JSON_COMMAND"
+    done
+
+    # Затримка на 5 секунд
+    sleep 5
+
+    # Видалення first.mp4, second.mp4, third.mp4 з черги
+    for f in first.mp4 second.mp4 third.mp4; do
+      JSON_COMMAND='{"command": ["playlist-remove", "'$f'"]}'
+      send_command_to_mpv "$JSON_COMMAND"
+    done
+  fi
+done
+#---
+
+#!/bin/bash
+
+# Каталог для моніторингу
+WATCH_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+# IPC сокет MPV
+MPV_SOCKET="/tmp/mpvsocket"
+
+# Функція для відправлення команд до MPV через IPC
+send_command_to_mpv() {
+  echo $1 | socat - UNIX-CONNECT:$MPV_SOCKET
+}
+
+# Функція для додавання файлів до черги MPV
+add_files_to_playlist() {
+  for file in "$WATCH_DIR"/*.mp4; do
+    [[ -f "$file" ]] || continue
+    send_command_to_mpv '{"command": ["loadfile", "'$file'", "append"]}'
+  done
+}
+
+# Моніторинг каталогу на нові файли або видалення файлів
+inotifywait -m -e create -e delete "$WATCH_DIR" --format '%f' | while read FILE; do
+  if [[ "$FILE" == *.mp4 ]]; then
+    # Додавання нових файлів до черги
+    add_files_to_playlist
+
+    # Чекаємо 5 секунд
+    sleep 5
+
+    # Видалення старих файлів з черги (за допомогою команди playlist-remove)
+    # ...
+    # Замість "..." потрібно ввести код для видалення старих файлів. Це може бути складно
+    # реалізувати, оскільки потрібно точно знати, які файли видалити.
+  fi
+done
+#----------------алго з тільки додавання файлів до плейліста
+#!/bin/bash
+
+# Каталог для моніторингу
+WATCH_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+# IPC сокет MPV
+MPV_SOCKET="/tmp/mpvsocket"
+
+# Функція для відправлення команд до MPV через IPC
+send_command_to_mpv() {
+  echo $1 | socat - UNIX-CONNECT:$MPV_SOCKET
+}
+
+# Функція для додавання всіх MP4 файлів з каталогу до черги MPV
+add_files_to_playlist() {
+  for file in "$WATCH_DIR"/*.mp4; do
+    [[ -f "$file" ]] || continue
+    send_command_to_mpv '{"command": ["loadfile", "'$file'", "append"]}'
+  done
+}
+
+# Моніторинг каталогу на нові файли або видалення файлів
+inotifywait -m -e create -e delete "$WATCH_DIR" --format '%f' | while read FILE; do
+  if [[ "$FILE" == *.mp4 ]]; then
+    # Додавання всіх MP4 файлів до черги MPV
+    add_files_to_playlist
+  fi
+done
+#---
+#sudo apt-get install inotify-tools socat
+#-------------------------------------
+
+#!/bin/bash
+
+# Каталог для моніторингу
+WATCH_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Скрипт, який потрібно перезапустити
+SCRIPT_TO_RUN="/home/admin30/scripts/lvmpv.sh"
+
+# Моніторинг каталогу на створення або видалення MP4 файлів
+inotifywait -m -e create -e delete "$WATCH_DIR" --format '%f' | while read FILE
+do
+    if [[ "$FILE" == *.mp4 ]]; then
+        echo "Зміни в каталозі виявлено. Перезапускаємо $SCRIPT_TO_RUN..."
+        pkill -f $SCRIPT_TO_RUN
+        bash $SCRIPT_TO_RUN &
+    fi
 done
 
 
+#------------------------Алгоритм з перезапуском скрипта
+#!/bin/bash
+
+# Каталог для моніторингу
+WATCH_DIR="/home/admin30/Dropbox/Pharma/VideoStream"
+
+# Скрипт, який потрібно перезапустити
+SCRIPT="/home/admin30/scripts/lvmpv.sh"
+
+# Моніторинг каталогу на створення або видалення MP4 файлів
+inotifywait -m -e create -e delete "$WATCH_DIR" --format '%f' | while read FILE
+do
+    if [[ "$FILE" == *.mp4 ]]; then
+        echo "Виявлено зміни у $WATCH_DIR. Перезапуск $SCRIPT..."
+
+        # Знаходимо PID старого скрипта та процесу MPV
+        OLD_SCRIPT_PID=$(pgrep -f "$SCRIPT")
+        OLD_MPV_PID=$(pgrep -f "mpv")
+
+        # Запускаємо новий скрипт
+        bash "$SCRIPT" &
+
+        # Завершуємо старі процеси
+        [[ -n "$OLD_SCRIPT_PID" ]] && kill "$OLD_SCRIPT_PID"
+        [[ -n "$OLD_MPV_PID" ]] && kill "$OLD_MPV_PID"
+    fi
+done
 
